@@ -181,13 +181,17 @@ app.get('/postsById/:postId',(req,res) => {
 //GET POST BY USER ID 
 //EL USUARIO PUEDE VER LOS POSTS QUE HA HECHO
 app.get('/postsByUser/:userId',(req,res)=>{
-    const id = req.params.userId;
-    if( !id ){
+    let header = req.headers.authorization.split(' ')[1];
+    console.log(header);
+    let {userOid} = jwt.decode(header);
+    console.log(userOid);
+    //const id = req.params.userId;
+    if( !userOid ){
         res.statusMessage = "id not sent as params";
         return res.status(406).end(); 
     }
     Posts
-        .getPostByUser(id)
+        .getPostByUser(userOid)
         .then(posts=>{
             return res.status( 200 ).json( posts );
         })
@@ -352,7 +356,10 @@ app.post('/newLike', jsonParser, (req, res) => {
 
 // **************************COMMENTS************************************
 app.post('/newComment', jsonParser, (req, res) => {
-    const {content, userOid, postOid} = req.body;
+    let header = req.headers.authorization.split(' ')[1];
+    let {userOid} = jwt.decode(header);
+    //checar el postOid
+    const {content, postOid} = req.body;
     const newComment = {content, userOid, postOid};
 
     Comments
