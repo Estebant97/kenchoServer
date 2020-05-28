@@ -14,7 +14,7 @@ const {DATABASE_URL, PORT, SECRET_TOKEN} = require( './config' );
 const cors = require( './middleware/cors' );
 const app = express();
 //use
-if (process.env.NODE_ENV === 'production') {
+/* if (process.env.NODE_ENV === 'production') {
     app.use(express.static('client/build'));
   
     const path = require('path');
@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
     })
   
-}
+} */
 app.use( morgan( 'dev' ) );
 app.use( cors );
 app.use(express.json());
