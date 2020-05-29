@@ -73,6 +73,16 @@ const Likes = {
                 .catch(err => {
                     return err;
                 })  
+    },
+    delAllLiked : function(id) {
+        return likeModel
+            .deleteMany({postOid : id})
+            .then( del => {
+                return del;
+            })
+            .catch(err => {
+                return err;
+            })
     }
     // update liked post change boolean from False to True;
 }

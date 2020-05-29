@@ -226,38 +226,33 @@ app.post('/newPost',jsonParser,(req,res)=>{
 // in case a post is deleted it must be removed from the likes and comments should be wiped
 app.delete( '/deletePost/:id', (req, res) => {
     let id = req.params.id;
-    // first delete comments
-    /* Posts
-        .deleteComments(id)
-        .then( post => {
-            if( post.errmsg ){
-                res.statusMessage = "That id was not found in the list of posts";
+    Likes
+        .delAllLiked(id)
+        .then( del => {
+            if(del.errmsg ){
+                res.statusMessage = "That id was not found in the list of comments";
                 return res.status( 404 ).end();
             }
-                return res.status( 200 ).json( post );
+                return Comments
+                        .delAllComments(id)
+
         })
-        .catch( err => {
-            res.statusMessage = "Something is wrong with the Database";
-            console.log("1 " + err);
-            return res.status( 500 ).end();
-        }); */
-    // then remove from likedPosts
-    /* Likes
-        .delLikedPostById(id)
-        .then( likedPost => {
-            if( likedPost.errmsg ){
-                res.statusMessage = "That id was not found in the list of posts";
+        .then( commentsDeleted => {
+            if(commentsDeleted.errmsg ){
+                res.statusMessage = "That id was not found in the list of comments";
                 return res.status( 404 ).end();
             }
-                return res.status( 200 ).json( likedPost );
+                return Posts
+                        .delPostById(id)
+        })
+        .then( response => {
+            return res.status(200).json(response);
         })
         .catch( err => {
-            res.statusMessage = "Something is wrong with the Database";
-            console.log("2 " + err);
+            res.statusMessage = "Something is wrong with the database";
             return res.status( 500 ).end();
-        }); */
-    // then delete post
-    Posts
+        })
+/*     Posts
         .delPostById( id )
         .then( post => {
             if( post.errmsg ){
@@ -269,7 +264,7 @@ app.delete( '/deletePost/:id', (req, res) => {
         .catch( err => {
             res.statusMessage = "Something is wrong with the Database";
             return res.status( 500 ).end();
-        });
+        }); */
 });
 // PATCH Title of Post By id
 app.patch('/updatePost/:id', jsonParser, (req, res) => {

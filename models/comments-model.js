@@ -72,6 +72,16 @@ const Comments = {
                 .catch(err => {
                     return err;
                 })  
+    }, 
+    delAllComments : function(id){
+        return commentModel
+            .deleteMany({postOid : id})
+            .then( del => {
+                return del;
+            })
+            .catch(err => {
+                return err;
+            })
     }
 }
 
