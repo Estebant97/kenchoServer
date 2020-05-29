@@ -14,15 +14,6 @@ const {DATABASE_URL, PORT, SECRET_TOKEN} = require( './config' );
 const cors = require( './middleware/cors' );
 const app = express();
 //use
-/* if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('client/build'));
-  
-    const path = require('path');
-    app.get('*', (req,res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
-    })
-  
-} */
 app.use( morgan( 'dev' ) );
 app.use( cors );
 app.use(express.json());
@@ -120,28 +111,24 @@ app.post('/users/register', jsonParser, (req, res) => {
             });
         });
 });
-/*
 //GET DATA FROM SPECIFIC USER
-app.get('/user/:id',(req,res)=>{
-    let id=req.params.userOid;
+app.get('/getUser/:id', (req, res) => {
+    const id = req.params.id;
     Users
-    .getUserById(id)
-    .then(user=>{
-        return res.status(200).json(user);
-    })
-    .catch( err => {
-        res.statusMessage = err.message;
-        return res.status( 500 ).end();
-    });
-})
-*/
+        .getUserById(id)
+        .then( user => {
+            return res.status(201).json(user)
+        })
+        .catch( err => {
+            console.log(err);
+            return res.status(500).end();
+        })
+});
 //*****************************************POSTS*****************************************
 //GET ALL POSTS
 app.get( '/posts', ( req, res ) => {
     let header = req.headers.authorization.split(' ')[1];
-    console.log(header);
     let {username} = jwt.decode(header);
-    console.log(username);
     Posts
         .getAllPosts()
         .then( posts => {
@@ -163,8 +150,6 @@ app.get('/postsById/:postId',(req,res) => {
     Posts
         .getPostById(id)
         .then(post=> {
-            
-            console.log(post);
             return res.status( 200 ).json( post );
         }) 
        
@@ -182,9 +167,7 @@ app.get('/postsById/:postId',(req,res) => {
 //EL USUARIO PUEDE VER LOS POSTS QUE HA HECHO
 app.get('/postsByUser/:userId',(req,res)=>{
     let header = req.headers.authorization.split(' ')[1];
-    console.log(header);
     let {userOid} = jwt.decode(header);
-    console.log(userOid);
     //const id = req.params.userId;
     if( !userOid ){
         res.statusMessage = "id not sent as params";
@@ -220,7 +203,6 @@ app.post('/newPost',jsonParser,(req,res)=>{
     // si no retornar un
     let header = req.headers.authorization.split(' ')[1];
     let {userOid} = jwt.decode(header);
-    console.log(userOid);
     const {title,image,comments} = req.body;
     if( !title||!image ||!userOid ){
         res.statusMessage = "One of these parameters is missing in the request";
@@ -319,14 +301,11 @@ app.patch('/updatePost/:id', jsonParser, (req, res) => {
 })
 //**************************Likes********************************
 // Get all likes by user
-app.get('/getLikesByUser/:userId', (req, res) => {
-    const id = req.params.userId;
-    if( !id ){
-        res.statusMessage = "id not sent as params";
-        return res.status(406).end(); 
-    }
+app.get('/getLikesByUser', (req, res) => {
+    let header = req.headers.authorization.split(' ')[1];
+    let {userOid} = jwt.decode(header);
     Likes
-        .getAllLikedPostsByUser(id)
+        .getAllLikedPostsByUser(userOid)
         .then(posts=>{
             return res.status( 200 ).json( posts );
         })
@@ -338,10 +317,12 @@ app.get('/getLikesByUser/:userId', (req, res) => {
 
 // Add a post to your like section
 app.post('/newLike', jsonParser, (req, res) => {
-    const {userOid, postOid, liked} = req.body;
+    let header = req.headers.authorization.split(' ')[1];
+    let {userOid} = jwt.decode(header);
+    const {postOid, liked} = req.body;
     
     const newLike = {userOid,postOid, liked};
-
+    
     Likes
         .createLikedPost( newLike )
         .then(like => {
@@ -351,8 +332,21 @@ app.post('/newLike', jsonParser, (req, res) => {
             res.statusMessage = err.message;
             return res.status( 500 ).end();
         });
-    
 });
+app.post('/isLiked', jsonParser, (req, res) => {
+    let header = req.headers.authorization.split(' ')[1];
+    let {userOid} = jwt.decode(header);
+    const {postOid} = req.body;
+    Likes
+        .checkIfLiked(postOid, userOid)
+        .then( like => {
+            return res.status(200).json(like);
+        })
+        .catch( err => {
+            res.statusMessage = err.message;
+            return res.status( 500 ).end();
+        })
+})
 
 // **************************COMMENTS************************************
 app.post('/newComment', jsonParser, (req, res) => {
@@ -360,6 +354,7 @@ app.post('/newComment', jsonParser, (req, res) => {
     let {userOid} = jwt.decode(header);
     //checar el postOid
     const {content, postOid} = req.body;
+    
     const newComment = {content, userOid, postOid};
 
     Comments
@@ -384,9 +379,7 @@ app.post('/newComment', jsonParser, (req, res) => {
 
 app.get('/getCommentsByUserId/:userId', (req, res) => {
     let header = req.headers.authorization.split(' ')[1];
-    console.log(header);
     let {userOid} = jwt.decode(header);
-    console.log(userOid);
     //const id = req.params.userId;
     if( !userOid ){
         res.statusMessage = "id not sent as params";

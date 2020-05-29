@@ -50,7 +50,11 @@ const Posts = {
     getPostById : function( id ){
         return postModel
                 .find( {_id: id})
-                .populate( 'comments', ['content','userOid'] )
+                .populate( 'comments', ['content','userOid.username'] )
+                .populate({path: 'comments', select : 'content userOid',
+                    // Get friends of friends - populate the 'friends' array for every friend
+                    populate: { path: 'userOid', select: 'username' }
+                })
                 .populate( 'userOid', ['username'] )
                 //checar este populate que si funciona pero no se si mostrara todos los usuarios
                 //preguntar como mostrar el username tambien por cada comment

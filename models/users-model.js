@@ -54,13 +54,13 @@ const Users = {
     },
     getUserById: function(id){
         return userModel
-            .findOne({"_id":id})
-            .then(user=>{
-                return user;
-            })
-            .catch(err=>{
-                throw new Error(err.message);
-            })
+                    .find( {_id: id})
+                    .then( user => {
+                        return user;
+                    })
+                    .catch( err => {
+                        throw new Error( err.message );
+                    });
     },
     // delete user by id
     delUserById : function(id){

@@ -14,6 +14,7 @@ const likesSchema = mongoose.Schema({
     },
     liked: {
         type: Boolean,
+        default : false,
         required: true
     }
 });
@@ -41,6 +42,16 @@ const Likes = {
         .catch( err => {
             throw new Error( err.message );
         });
+    },
+    checkIfLiked : function(postid, userid){
+        return likeModel
+        .exists({userOid:userid, postOid: postid})
+        .then( isLiked => {
+            return isLiked;
+        })
+        .catch( err => {
+            return err;
+        })
     },
     // change the boolean from True to False
     delLikedPostById : function( id ){
