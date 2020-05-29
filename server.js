@@ -346,8 +346,24 @@ app.post('/isLiked', jsonParser, (req, res) => {
             res.statusMessage = err.message;
             return res.status( 500 ).end();
         })
+});
+app.delete('/deleteLike', jsonParser, (req, res) => {
+    let {postOid} = req.body;
+    
+    Likes
+        .delLikedPostById ( postOid )
+        .then( like => {
+            if(like.errmsg ){
+                res.statusMessage = "That id was not found in the list of comments";
+                return res.status( 404 ).end();
+            }
+                return res.status( 200 ).json( like );
+        })
+        .catch( err => {
+            res.statusMessage = "Something is wrong with the database";
+            return res.status( 500 ).end();
+        })
 })
-
 // **************************COMMENTS************************************
 app.post('/newComment', jsonParser, (req, res) => {
     let header = req.headers.authorization.split(' ')[1];

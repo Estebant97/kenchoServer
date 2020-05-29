@@ -56,7 +56,7 @@ const Likes = {
     // change the boolean from True to False
     delLikedPostById : function( id ){
         return likeModel
-                .findOneAndRemove({"_id" : id})
+                .findOneAndRemove({"postOid" : id})
                 .then( likedPost => {
                     return likedPost;
                 })
