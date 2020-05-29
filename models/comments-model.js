@@ -8,7 +8,7 @@ const commentSchema = mongoose.Schema({
     },
     postOid : {
         type:mongoose.Schema.Types.ObjectId,
-        ref : 'users',
+        ref : 'posts',
         required:true
     },
     content : {
@@ -34,7 +34,8 @@ const Comments = {
     getAllCommentsByUserId : function(id){
         return commentModel
                 .find({userOid: id})
-                .populate('userOid', ['username'] )
+                //.populate('userOid', ['username'] )
+                .populate('postOid',['title'])
                 .then( comments => {
                     return comments;
                 })
